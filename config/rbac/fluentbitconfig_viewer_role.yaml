@@ -1,0 +1,20 @@
+# permissions for end users to view fluentbitconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluentbitconfig-viewer-role
+rules:
+- apiGroups:
+  - fluentbit.fluent.io
+  resources:
+  - fluentbitconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - fluentbit.fluent.io
+  resources:
+  - fluentbitconfigs/status
+  verbs:
+  - get
