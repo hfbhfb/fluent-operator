@@ -1,7 +1,0 @@
-apiVersion: fluentd.fluent.io/v1alpha1
-kind: Filter
-metadata:
-  name: filter-sample
-spec:
-  # Add fields here
-  foo: bar
