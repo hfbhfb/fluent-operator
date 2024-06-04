@@ -16,4 +16,4 @@ resources:
 - systemd-lua-config.yaml
 
 # Change to the namespace you want such as: 
-# namespace: fluent
+namespace: fluent

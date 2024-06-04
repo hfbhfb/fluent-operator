@@ -1,3 +1,49 @@
+
+
+
+# fluent-operator配置和使用            **2738qowc**                 依赖   221qywg
+## 操作实践
+
+
+#### 安装使用
+步骤1. Deploy Fluent Operator with YAML
+
+```sh
+
+kubectl create ns fluent
+kubectl delete -f ./manifests2/setup.yaml
+kubectl apply -f ./manifests2/setup.yaml
+
+kubectl describe po -n fluent fluent-operator-68d977c858-ml4ml
+watch "kubectl get po -n fluent"
+
+```
+
+步骤2. Deploy the Kubernetes logging stack with YAML  （默认对接了es）
+```sh
+#- [不使用这个命令，使用下面命令]kubectl apply -f manifests/logging-stack
+#清理
+kubectl kustomize manifests/logging-stack/ | kubectl delete -f -
+#安装
+kubectl kustomize manifests/logging-stack/ | kubectl apply -f -
+
+# 查看pod状态和CRD资源
+kubectl get daemonset -A|grep fluent
+kubectl get po -A|grep fluent
+kubectl get FluentBit -A
+kubectl get ClusterFluentBitConfig
+kubectl get clusterfilter.fluentbit.fluent.io -A
+kubectl get ClusterInput -A
+kubectl get ClusterOutput.fluentbit.fluent.io -A
+
+```
+
+
+# 以下是社区的文档
+
+---
+
+
 <p align="center">
 <a href="https://github.com/fluent/fluent-operator"><img src="docs/images/fluent-operator-icon.svg" alt="banner" width="150px"></a>
 </p>

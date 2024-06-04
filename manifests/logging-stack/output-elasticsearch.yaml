@@ -8,7 +8,7 @@ metadata:
 spec:
   matchRegex: (?:kube|service)\.(.*)
   es:
-    host: elasticsearch-logging-data.kubesphere-logging-system.svc
+    host: elasticsearch.escluster2.svc
     port: 9200
     generateID: true
     bufferSize: 20MB
