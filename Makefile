@@ -13,3 +13,13 @@ install:
 uninstall:
 	helm delete ${helmAppName} --namespace fluentns
 
+
+# 把特定命名空间的日志导入不同的index组里
+forp3:
+	kubectl delete -f example/outputp3.yaml
+	kubectl apply -f example/outputp3.yaml
+
+clearp3:
+	kubectl delete -f example/outputp3.yaml
+
+

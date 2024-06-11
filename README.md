@@ -4,7 +4,12 @@
 # fluent-operator配置和使用            **2738qowc**                 依赖   221qywg
 ## 操作实践
 
+### 安装并将默认日志导入到es
 make install
+
+### 把特定命名空间的日志导入不同的index组里
+make forp3
+
 
 
 # 测试1  【查看pod状态和CRD资源】

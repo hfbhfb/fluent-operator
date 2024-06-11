@@ -1,0 +1,118 @@
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterInput
+metadata:
+  name: containers
+  labels:
+    fluentbit.fluent.io/infra: "true"
+spec:
+  tail:
+    tag: kube.*
+    path: /var/log/containers/*.log
+    # path: "/var/log/containers/[^\/]+_kube-system_[^\/]+[a-f0-9]{64}\.log"
+    parser: cri
+    refreshIntervalSeconds: 10
+    memBufLimit: 100MB
+    skipLongLines: true
+    db: /fluent-bit/tail/containers.db
+    dbSync: Normal
+
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterFilter
+metadata:
+  name: containers
+  labels:
+    fluentbit.fluent.io/infra: "true"
+spec:
+  matchRegex: kube.*
+  filters:
+    - kubernetes:
+        kubeURL: https://kubernetes.default.svc:443
+        kubeCAFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        kubeTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        labels: true
+        annotations: true
+        mergeLog: true
+        k8sLoggingExclude: true
+        k8sLoggingParser: true
+        keepLog: false
+        mergeLogTrim: true
+
+    - nest:
+        operation: lift
+        nestedUnder: kubernetes
+        addPrefix: kubernetes_
+
+    - modify:
+        rules:
+          - remove: stream
+          - remove: kubernetes_pod_id
+          - remove: kubernetes_container_hash
+
+    - nest:
+        operation: nest
+        wildcard:
+          - kubernetes_*
+        nestUnder: kubernetes
+        removePrefix: kubernetes_
+
+    - recordModifier:
+        records:
+          - clusterName demo1
+
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterOutput
+metadata:
+  name: containers-kube-system
+  labels:
+    fluentbit.fluent.io/infra: "true"
+spec:
+  matchRegex: kube.var.log.containers.*_kube-system_.*-(\w|\.){68}$
+  es:
+    host: 172.16.100.10
+    index: devops-applog-kube-system-%Y.%m.%d
+    port: 9200
+    replaceDots: true
+    suppressTypeName: "false"
+    traceError: true
+    type: _doc
+    bufferSize: 10M
+
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterOutput
+metadata:
+  name: containers-infra
+  labels:
+    fluentbit.fluent.io/infra: "true"
+spec:
+  matchRegex: kube.var.log.containers.*_infra_.*-(\w|\.){68}$
+  es:
+    host: 172.16.100.10
+    index: devops-applog-infra-%Y.%m.%d
+    port: 9200
+    replaceDots: true
+    suppressTypeName: "false"
+    traceError: true
+    type: _doc
+    bufferSize: 10M
+
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterOutput
+metadata:
+  name: containers-dubhe-system
+  labels:
+    fluentbit.fluent.io/infra: "true"
+spec:
+  matchRegex: kube.var.log.containers.*_dubhe-system_.*-(\w|\.){68}$
+  es:
+    host: 172.16.100.10
+    index: devops-applog-dubhe-%Y.%m.%d
+    port: 9200
+    replaceDots: true
+    suppressTypeName: "false"
+    traceError: true
+    type: _doc
+    bufferSize: 10M
